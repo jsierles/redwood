@@ -15,7 +15,7 @@ const {
   copyFrameworkPackages,
 } = require('./frameworkLinking')
 const { webTasks, apiTasks } = require('./tasks')
-const { getExecaOptions } = require('./util')
+const { getExecaOptions, yarn1 } = require('./util')
 
 const args = yargs
   .usage('Usage: $0 <project directory> [option]')
@@ -124,7 +124,7 @@ const globalTasks = () =>
         title: 'Installing node_modules',
         task: async () => {
           return execa(
-            'YARN_NODE_LINKER="node-modules" yarn dlx yarn install',
+            `${yarn1} install`,
             ['--non-interactive', !verbose && '--silent'].filter(Boolean),
             getExecaOptions(OUTPUT_PROJECT_PATH)
           )
@@ -148,7 +148,7 @@ const globalTasks = () =>
           )
           projectPackageJson.scripts = {
             ...projectPackageJson.scripts,
-            postinstall: 'yarn rwfw project:copy',
+            postinstall: `${yarn1} rwfw project:copy`,
           }
           fs.writeFileSync(
             projectPackageJsonPath,
@@ -161,7 +161,7 @@ const globalTasks = () =>
         title: 'Upgrading to latest canary version',
         task: async () => {
           return execa(
-            'yarn rw upgrade -t canary',
+            `${yarn1} rw upgrade -t canary`,
             [],
             getExecaOptions(OUTPUT_PROJECT_PATH)
           )
@@ -180,7 +180,7 @@ const globalTasks = () =>
         title: 'Convert to JS',
         task: async () => {
           return execa(
-            'yarn rw ts-to-js',
+            `${yarn1} rw ts-to-js`,
             [],
             getExecaOptions(OUTPUT_PROJECT_PATH)
           )

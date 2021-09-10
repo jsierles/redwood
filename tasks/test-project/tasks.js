@@ -6,7 +6,7 @@ const execa = require('execa')
 const Listr = require('listr')
 const VerboseRenderer = require('listr-verbose-renderer')
 
-const { getExecaOptions, applyCodemod } = require('./util')
+const { getExecaOptions, applyCodemod, yarn1 } = require('./util')
 
 // This variable gets used in other functions
 // and is set when webTasks or apiTasks are called
@@ -36,7 +36,7 @@ async function webTasks(outputPath, { link, verbose }) {
   }
 
   const createPages = async () => {
-    const createPage = createBuilder('yarn redwood g page')
+    const createPage = createBuilder(`${yarn1} redwood g page`)
 
     return new Listr([
       {
@@ -87,7 +87,7 @@ async function webTasks(outputPath, { link, verbose }) {
   }
 
   const createLayout = async () => {
-    const createLayout = createBuilder('yarn redwood g layout')
+    const createLayout = createBuilder(`${yarn1} redwood g layout`)
 
     await createLayout('blog')
 
@@ -98,7 +98,7 @@ async function webTasks(outputPath, { link, verbose }) {
   }
 
   const createComponents = async () => {
-    const createComponent = createBuilder('yarn redwood g component')
+    const createComponent = createBuilder(`${yarn1} redwood g component`)
 
     await createComponent('blogPost')
 
@@ -109,7 +109,7 @@ async function webTasks(outputPath, { link, verbose }) {
   }
 
   const createCells = async () => {
-    const createCell = createBuilder('yarn redwood g cell')
+    const createCell = createBuilder(`${yarn1} redwood g cell`)
 
     await createCell('blogPosts')
 
@@ -156,7 +156,7 @@ async function webTasks(outputPath, { link, verbose }) {
         // @NOTE: use rwfw, because calling the copy function doesn't seem to work here
         task: () =>
           execa(
-            'yarn workspace web add postcss postcss-loader tailwindcss autoprefixer',
+            `${yarn1} workspace web add postcss postcss-loader tailwindcss autoprefixer`,
             [],
             getExecaOptions(outputPath)
           ),
@@ -166,7 +166,7 @@ async function webTasks(outputPath, { link, verbose }) {
         title: '[link] Copy local framework files again',
         // @NOTE: use rwfw, because calling the copy function doesn't seem to work here
         task: () =>
-          execa('yarn rwfw project:copy', [], getExecaOptions(outputPath)),
+          execa(`${yarn1} rwfw project:copy`, [], getExecaOptions(outputPath)),
         enabled: () => link,
       },
       // =========
@@ -174,7 +174,7 @@ async function webTasks(outputPath, { link, verbose }) {
         title: 'Adding Tailwind',
         task: () => {
           return execa(
-            'yarn rw setup tailwind',
+            `${yarn1} rw setup tailwind`,
             ['--force', link && '--no-install'].filter(Boolean),
             execaOptions
           )
@@ -211,7 +211,7 @@ async function apiTasks(outputPath, { verbose }) {
           addModel(post)
 
           return execa(
-            `yarn rw prisma migrate dev --name create_product`,
+            `${yarn1} rw prisma migrate dev --name create_product`,
             [],
             execaOptionsForProject
           )
@@ -220,7 +220,11 @@ async function apiTasks(outputPath, { verbose }) {
       {
         title: 'Scaffoding post',
         task: async () => {
-          return execa('yarn rw g scaffold post', [], execaOptionsForProject)
+          return execa(
+            `${yarn1} rw g scaffold post`,
+            [],
+            execaOptionsForProject
+          )
         },
       },
       {
@@ -231,7 +235,7 @@ async function apiTasks(outputPath, { verbose }) {
             fullPath('api/db/seed.js', { addExtension: false }) // seed.js is seed.js in a TS project too
           )
 
-          return execa('yarn rw prisma db seed', [], execaOptionsForProject)
+          return execa(`${yarn1} rw prisma db seed`, [], execaOptionsForProject)
         },
       },
       {
@@ -242,12 +246,12 @@ async function apiTasks(outputPath, { verbose }) {
           addModel(contact)
 
           await execa(
-            `yarn rw prisma migrate dev --name create_contact`,
+            `${yarn1} rw prisma migrate dev --name create_contact`,
             [],
             execaOptionsForProject
           )
 
-          await execa(`yarn rw g sdl contact`, [], execaOptionsForProject)
+          await execa(`${yarn1} rw g sdl contact`, [], execaOptionsForProject)
 
           await applyCodemod(
             'contactsSdl.js',
