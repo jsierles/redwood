@@ -27,7 +27,10 @@ const getExecaOptions = (cwd) => ({
   },
 })
 
+const yarn1 = 'YARN_NODE_LINKER="node-modules" yarn dlx yarn'
+
 module.exports = {
   getExecaOptions,
   applyCodemod,
+  yarn1,
 }
