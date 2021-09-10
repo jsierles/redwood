@@ -124,7 +124,7 @@ const globalTasks = () =>
         title: 'Installing node_modules',
         task: async () => {
           return execa(
-            'yarn install',
+            'YARN_NODE_LINKER="node-modules" yarn dlx yarn install',
             ['--non-interactive', !verbose && '--silent'].filter(Boolean),
             getExecaOptions(OUTPUT_PROJECT_PATH)
           )
